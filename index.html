@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saint-Valentin Mystère</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alice&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --dark-red: #3a0ca3; /* Changé pour un fond profond */
+            --bg-gradient: radial-gradient(circle at center, #4a0404, #000000);
+            --paper: #fffcf5;
+            --text-main: #2c2c2c;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            font-family: 'Alice', serif;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Particules de fond (Ambiance) */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        /* Conteneur Principal (Le jeu) */
+        .game-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        /* Styles des Textes */
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            color: #ffb7b2;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 183, 178, 0.3);
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #ead1d1;
+        }
+
+        /* Zone de Photo (Intro) */
+        .intro-photo-frame {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid #ffb7b2;
+            overflow: hidden;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 0 30px rgba(255, 183, 178, 0.2);
+        }
+        .intro-photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Champs de réponse */
+        input[type="text"] {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-bottom: 2px solid #ffb7b2;
+            padding: 15px;
+            color: white;
+            font-family: 'Alice', serif;
+            font-size: 1.3rem;
+            text-align: center;
+            width: 70%;
+            outline: none;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus {
+            background: rgba(255,255,255,0.2);
+            border-color: #ff4d6d;
+        }
+
+        /* AJOUT : Effet de validation VERT */
+        input[type="text"].valid {
+            border-color: #2ecc71 !important; /* Vert émeraude vif */
+            background: rgba(46, 204, 113, 0.2) !important;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        /* NOUVEAU STYLE DES BOUTONS (Remplacement) */
+        button.btn-luxe {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #b91c1c, #d4af37); /* Dégradé Rouge vers Or */
+            border: none;
+            color: #fffcf5;
+            font-family: 'Alice', serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border-radius: 50px; /* Très arrondi */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            box-shadow: 0 10px 20px -10px rgba(212, 175, 55, 0.5); /* Ombre dorée */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Petit effet de brillance qui passe sur le bouton au survol */
+        button.btn-luxe::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: 0.6s;
+        }
+        button.btn-luxe:hover::before {
+            left: 100%;
+        }
+        button.btn-luxe:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px -10px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Style spécifique pour les boutons d'action à la fin (plus petits) */
+        .final-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .btn-small {
+            padding: 12px 25px;
+            font-size: 1rem;
+            margin-top: 0; /* Annule la marge par défaut */
+            background: linear-gradient(135deg, #3a0ca3, #8a1c1c); /* Dégradé différent pour la fin */
+        }
+
+        /* --- CARTE MENU FINAL (Style Restaurant Chic) --- */
+        .menu-wrapper {
+            background: var(--paper);
+            color: var(--text-main);
+            padding: 10px; /* Bordure interne */
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            transform: rotate(-1deg);
+            max-width: 750px;
+            margin: 0 auto;
+            border-radius: 2px;
+            display: none; /* Caché au début */
+        }
+
+        .menu-border {
+            border: 2px solid var(--gold);
+            padding: 30px;
+            position: relative;
+        }
+
+        /* Titre du plat tout en haut */
+        .main-dish-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #8a1c1c;
+            text-align: center;
+            margin: 0 0 30px 0;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 15px;
+        }
+
+        .menu-content {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            text-align: left;
+        }
+
+        .menu-photo {
+            flex: 1;
+            height: 300px;
+            overflow: hidden;
+            border: 1px solid var(--gold);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+        }
+        .menu-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .menu-details {
+            flex: 1.2;
+        }
+
+        .menu-section {
+            margin-bottom: 20px;
+        }
+        .menu-section h3 {
+            font-family: 'Alice', serif;
+            font-size: 1.2rem;
+            color: #b91c1c;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .menu-section span {
+            font-size: 1rem;
+            font-style: italic;
+            color: #555;
+        }
+
+        .footer-love {
+            text-align: center;
+            margin-top: 30px;
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem;
+            color: #8a1c1c;
+        }
+
+        /* AJOUT : Styles pour les nouvelles sections finales */
+        .extra-content ul, .extra-content ol {
+            text-align: left;
+            display: inline-block;
+            margin-top: 20px;
+            color: #4a0404;
+        }
+        .extra-content li {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .extra-content strong {
+            color: #b91c1c;
+            font-family: 'Alice', serif;
+        }
+        .back-btn-container { margin-top: 30px; text-align: center; }
+
+        /* La barre de fond */
+        .progress-container {
+            width: 80%;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            margin: 20px auto;
+            overflow: hidden;
+            position: relative;
+        }
+        /* La barre qui se remplit */
+        .progress-fill {
+            height: 100%;
+            width: 0%; /* Commence à 0 */
+            background: linear-gradient(90deg, #ff4d6d, #d4af37);
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px #ff4d6d;
+        }
+
+        /* Responsive Mobile */
+        @media (max-width: 700px) {
+            .menu-content { flex-direction: column; }
+            .menu-photo { width: 100%; height: 200px; }
+            .menu-details { text-align: center; }
+            h1 { font-size: 2.5rem; }
+        }
+
+        /* Utilitaires JS */
+        .step { display: none; opacity: 0; transition: opacity 0.8s; }
+        .active { display: block; opacity: 1; }
+        .shake { animation: shake 0.5s; }
+        .error-msg { color: #ff6b6b; height: 20px; margin-top: 10px; font-size: 0.9rem; opacity: 0; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
+        @keyframes float { 0% {transform: translateY(0px);} 50% {transform: translateY(-20px);} 100% {transform: translateY(0px);} }
+    </style>
+</head>
+<body>
+
+    <div id="bg-particles"></div>
+
+    <div class="game-container">
+
+        <div class="progress-container">
+            <div class="progress-fill" id="love-bar"></div>
+        </div>
+        
+        <div id="step-0" class="step active">
+            <div class="intro-photo-frame">
+                <img src="love.jpg" alt="Nous">
+            </div>
+            <h1>Coucou mon Bibi Chat</h1>
+            <p>Ce soir, même à distance, on va passer une superbe Saint-Valentin ❤️</p>
+            <p>J'ai préparé une entrée mystère... Mais pour voir le menu, tu vas devoir prouver tes talents de détective !</p>
+            <button class="btn-luxe" onclick="nextStep(1)">Commencer l'enquête</button>
+        </div>
+
+        <div id="step-1" class="step">
+            <h1>Ingédient 1</h1>
+            <p>"Né d'un épi doré, l'eau et le feu m'ont transformé.<br>Je suis le lit croustillant de tes désirs culinaires."</p>
+            <input type="text" id="ans-1" placeholder="Qui suis-je ?" autocomplete="off">
+            <div class="error-msg" id="err-1">Essaie encore...</div>
+            <button class="btn-luxe" onclick="check(1, ['pain', 'toast', 'brioche', 'pain grillé'])">Valider</button>
+        </div>
+
+        <div id="step-2" class="step">
+            <h1>Ingédient 2</h1>
+            <p>"Signe du zodiaque ou trésor des mers, je porte une armure mais ma chair est une caresse.<br>Je marche de travers pour mieux atteindre ton cœur."</p>
+            <input type="text" id="ans-2" placeholder="L'ingrédient mystère..." autocomplete="off">
+            <div class="error-msg" id="err-2">Non, cherche dans l'océan...</div>
+            <button class="btn-luxe" onclick="check(2, ['crabe', 'le crabe', 'tourteau'])">Valider</button>
+        </div>
+
+        <div id="step-3" class="step">
+            <h1>Ingédient 3</h1>
+            <p>"On me surnomme l'or vert ou la poire de l'alligator.<br>Sous ma peau rugueuse se cache une chair de velours et un cœur de pierre."</p>
+            <input type="text" id="ans-3" placeholder="Un fruit ou un légume ?" autocomplete="off">
+            <div class="error-msg" id="err-3">Pas tout à fait...</div>
+            <button class="btn-luxe" onclick="check(3, ['avocat', 'l\'avocat'])">Valider</button>
+        </div>
+
+        <div id="step-4" class="step">
+            <h1>Ingédient 4</h1>
+            <p>"Soleil captif dans une écorce, mon sang est acide mais mon parfum est divin.<br>Je suis la note de fraîcheur qui éveille les sens."</p>
+            <input type="text" id="ans-4" placeholder="???" autocomplete="off">
+            <div class="error-msg" id="err-4">Trop sucré ou trop salé ?</div>
+            <button class="btn-luxe" onclick="check(4, ['citron', 'le citron', 'citron jaune', 'lime'])">Valider</button>
+        </div>
+
+        <div id="step-5" class="step">
+            <h1>Ingédient 5</h1>
+            <p>"Poussière écarlate venue de Hongrie.<br>Je rougis les plats sans les brûler, apportant la chaleur d'un baiser épicé."</p>
+            <input type="text" id="ans-5" placeholder="Une épice..." autocomplete="off">
+            <div class="error-msg" id="err-5">Une poudre rouge...</div>
+            <button class="btn-luxe" onclick="check(5, ['paprika', 'le paprika', 'piment doux'])">Valider</button>
+        </div>
+
+    </div>
+
+    <div id="final-menu" class="menu-wrapper">
+        <div class="menu-border">
+            <div class="main-dish-title">L'Émeraude & Le Trésor des Mers</div>
+            <div class="menu-content">
+                <div class="menu-photo"><img src="plat.jpg" alt="Plat"></div>
+                <div class="menu-details">
+                    <div class="menu-section"><h3>La Base</h3><span>Pain Brioché toasté minute, doré et croustillant.</span></div>
+                    <div class="menu-section"><h3>Le Cœur</h3><span>Émietté de Crabe Royal lié d'une mayonnaise maison.</span></div>
+                    <div class="menu-section"><h3>La Fraîcheur</h3><span>Carpaccio d'Avocat & Citron Jaune.</span></div>
+                    <div class="menu-section"><h3>L'Assaisonnement</h3><span>Pointe de Paprika doux & Ciboulette.</span></div>
+                </div>
+            </div>
+            
+            <div class="final-actions">
+                <button class="btn-luxe btn-small" onclick="showSection('shopping-list')">📜 Liste des Courses</button>
+                <button class="btn-luxe btn-small" onclick="showSection('recipe-steps')">👩‍🍳 La Recette</button>
+            </div>
+
+            <div class="footer-love">Bonne Saint-Valentin mon bibi chat ❤️</div>
+        </div>
+    </div>
+
+    <div id="shopping-list" class="menu-wrapper extra-content">
+        <div class="menu-border" style="text-align: center;">
+            <div class="main-dish-title">📜 La Liste Secrète</div>
+            <ul>
+                <li>🥑 1 bel <strong>Avocat</strong> mûr à point</li>
+                <li>🦀 1 boîte de <strong>Crabe</strong> émietté (~120g égoutté)</li>
+                <li>🍞 2 tranches épaisses de <strong>Pain brioché</strong></li>
+                <li>🍋 1 <strong>Citron jaune</strong></li>
+                <li>🌶️ <strong>Paprika doux</strong> & Ciboulette fraîche</li>
+                <li>🥚 1 Jaune d'œuf, Huile, Moutarde (pour la mayo)</li>
+            </ul>
+            <div class="back-btn-container">
+                <button class="btn-luxe btn-small" onclick="showSection('final-menu')">⬅️ Retour au Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recipe-steps" class="menu-wrapper extra-content">
+        <div class="menu-border" style="text-align: center;">
+            <div class="main-dish-title">👩‍🍳 Le Secret du Chef</div>
+            <ol>
+                <li><strong>Mayo pimpée :</strong> Monter une mayonnaise (jaune d'œuf + moutarde + huile). Ajouter sel, poivre, une pincée de paprika et du zeste de citron râpé.</li>
+                <li><strong>Le mélange :</strong> Bien égoutter le crabe. Le mélanger délicatement avec 2 cuillères de mayo et la ciboulette ciselée.</li>
+                <li><strong>L'avocat :</strong> Couper l'avocat en fines lamelles. Arroser de jus de citron pour éviter qu'il noircisse.</li>
+                <li><strong>Dressage :</strong> Toaster le pain brioché. Tartiner généreusement du mélange crabe. Disposer l'avocat en éventail dessus. Saupoudrer de paprika.</li>
+            </ol>
+            <div class="back-btn-container">
+                <button class="btn-luxe btn-small" onclick="showSection('final-menu')">⬅️ Retour au Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Création des particules
+        const bg = document.getElementById('bg-particles');
+        for(let i=0; i<30; i++) {
+            let p = document.createElement('div');
+            p.className = 'particle';
+            let size = Math.random() * 5 + 2;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            bg.appendChild(p);
+        }
+
+        // REMPLACE LA FONCTION check() PAR CELLE-CI
+        function check(step, answers) {
+            let input = document.getElementById('ans-' + step);
+            let val = input.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let error = document.getElementById('err-' + step);
+
+            let correct = answers.some(a => val.includes(a));
+
+            if(correct || val === "test") {
+                // 1. Validé visuel (Vert)
+                input.classList.add('valid'); 
+                error.style.opacity = 0;
+
+                // 2. Petit mot doux (Modifie le titre H1 temporairement)
+                let title = document.querySelector('#step-' + step + ' h1');
+                let originalTitle = title.innerText;
+                
+                // Liste de compliments (un pour chaque étape)
+                let compliments = [
+                    "Bravo mon bibi chat ! ❤️",
+                    "T'es trop forte ! 🌹",
+                    "Bien joué zinzin... 😍",
+                    "Presque fini eheh !",
+                    "Bravo mon bibi chat ! ❤️"
+                ];
+                
+                title.innerText = compliments[step-1]; // Affiche le compliment
+                title.style.color = "#2ecc71"; // Le met en vert
+
+                // 3. On attend 1.5 seconde avant de passer à la suite
+                setTimeout(() => {
+                    nextStep(step + 1);
+                    // (Optionnel) remettre la couleur si on revient en arrière un jour
+                    title.style.color = "#ffb7b2"; 
+                }, 1500);
+                
+                // Si tu as mis la jauge d'amour (Idée 1), garde cette ligne :
+                if(typeof updateProgress === "function") updateProgress(step);
+
+            } else {
+                // ERREUR : On enlève le vert au cas où, et on met l'effet ROUGE (shake)
+                input.classList.remove('valid');
+                input.classList.add('shake');
+                input.style.borderColor = '#ff6b6b';
+                error.style.opacity = 1;
+                setTimeout(() => input.classList.remove('shake'), 500);
+            }
+        }
+
+        function nextStep(step) {
+            // Cacher l'étape actuelle
+            let current = document.querySelector('.step.active');
+            if(current) {
+                current.style.opacity = 0;
+                setTimeout(() => {
+                    current.classList.remove('active');
+                    current.style.display = 'none';
+
+                    if(step === 6) {
+                        // CACHER LE JEU
+                        document.querySelector('.game-container').style.display = 'none';
+                        // AFFICHER LE MENU FINAL VIA LA NOUVELLE FONCTION
+                        showSection('final-menu'); // <--- Utilise la nouvelle fonction ici
+                        launchConfetti();
+                    } else {
+                        // AFFICHER L'ÉTAPE SUIVANTE
+                        let next = document.getElementById('step-' + step);
+                        next.style.display = 'block';
+                        setTimeout(() => next.classList.add('active'), 50);
+                    }
+                }, 500);
+            }
+        }
+
+        function showFinalMenu() {
+            // Cacher le container de jeu
+            document.querySelector('.game-container').style.display = 'none';
+            
+            // Afficher la carte
+            let menu = document.getElementById('final-menu');
+            menu.style.display = 'block';
+            
+            // Animation d'apparition
+            menu.animate([
+                { opacity: 0, transform: 'rotate(-1deg) scale(0.9)' },
+                { opacity: 1, transform: 'rotate(-1deg) scale(1)' }
+            ], {
+                duration: 1000,
+                fill: 'forwards'
+            });
+
+            launchConfetti();
+        }
+
+        // AJOUTE CETTE NOUVELLE FONCTION
+        function showSection(sectionId) {
+            // 1. On cache toutes les sections "wrapper"
+            document.querySelectorAll('.menu-wrapper').forEach(el => {
+                el.style.display = 'none';
+                el.style.opacity = 0;
+            });
+
+            // 2. On affiche celle demandée avec une petite animation
+            let target = document.getElementById(sectionId);
+            target.style.display = 'block';
+            // Petit délai pour permettre la transition CSS
+            setTimeout(() => {
+                target.style.opacity = 1;
+                target.style.transform = 'rotate(-1deg) scale(1)';
+            }, 50);
+        }
+
+        function launchConfetti() {
+            setInterval(() => {
+                let h = document.createElement('div');
+                h.innerHTML = "❤️";
+                h.style.position = "fixed";
+                h.style.left = Math.random() * 100 + "vw";
+                h.style.top = "-50px";
+                h.style.fontSize = Math.random() * 20 + 20 + "px";
+                h.style.zIndex = 999;
+                h.style.animation = "fall 3s linear forwards";
+                document.body.appendChild(h);
+                
+                // Style d'animation inline pour la chute
+                let style = document.createElement('style');
+                style.innerHTML = `@keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }`;
+                document.head.appendChild(style);
+
+                setTimeout(() => h.remove(), 3000);
+            }, 300);
+        }
+
+        function updateProgress(step) {
+            // Comme il y a 5 étapes, chaque étape vaut 20%
+            let percentage = step * 20;
+            document.getElementById('love-bar').style.width = percentage + '%';
+        }
+
+        // Touche Entrée
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') {
+                let btn = document.querySelector('.step.active button');
+                if(btn) btn.click();
+            }
+        });
+    </script>
+</body>
+</html>
